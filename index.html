@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ihre Basisrente - Clever Vorsorgen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .section {
+            display: none; /* All sections hidden by default */
+        }
+        .active-section {
+            display: block; /* Active section will be shown */
+        }
+        /* Custom styles for accordion */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .accordion-button.active + .accordion-content {
+            max-height: 500px; /* Adjust as needed if content is taller */
+        }
+        /* Basic styling for message boxes */
+        .message-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            color: white;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            min-width: 250px;
+        }
+        .message-box.success {
+            background-color: #28a745; /* Green */
+        }
+        .message-box.error {
+            background-color: #dc3545; /* Red */
+        }
+        .message-box.info {
+            background-color: #17a2b8; /* Blue */
+        }
+        .message-box.warning { 
+            background-color: #ffc107; 
+            color: #212529; 
+        }
+        .message-box.visible {
+            opacity: 1;
+        }
+        /* Styles for comparison table */
+        .comparison-table th, .comparison-table td {
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        .comparison-table th {
+            background-color: #f1f5f9;
+        }
+        /* Simple bar chart styling */
+        .bar-chart-container {
+            display: flex;
+            justify-content: space-around; 
+            align-items: flex-end;
+            height: 200px; 
+            border: 1px solid #e2e8f0;
+            padding: 10px; 
+            border-radius: 0.375rem;
+            background-color: #f9fafb;
+            box-sizing: border-box; 
+        }
+        .bar-wrapper { 
+            width: 40%;
+            display: flex;
+            flex-direction: column-reverse; 
+            align-items: center;
+        }
+        .bar-segment, .bar-single { 
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-size: 0.75rem;
+            transition: height 0.5s ease-in-out;
+            box-sizing: border-box; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            overflow: hidden; 
+        }
+        .bar-segment:first-child { 
+             border-radius: 0 0 0.25rem 0.25rem ;
+        }
+        .bar-segment:not(:first-child):last-child { 
+             border-radius: 0.25rem 0.25rem 0 0;
+        }
+         .bar-single { 
+            border-radius: 0.25rem 0.25rem 0 0;
+        }
+
+        .bar-label {
+            font-size: 0.75rem;
+            text-align: center;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-sky-700 text-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4 flex flex-wrap justify-between items-center">
+            <a href="#" class="text-2xl font-bold hover:text-sky-200" onclick="showSection('home')">Basisrente Clever</a>
+            <button id="mobileMenuButton" class="md:hidden block text-white focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+            <nav id="navLinks" class="w-full md:w-auto md:flex space-x-0 md:space-x-4 hidden md:block mt-4 md:mt-0">
+                <a href="#" class="block md:inline-block px-3 py-2 rounded-md hover:bg-sky-600" onclick="showSection('home')">Start</a>
+                <a href="#" class="block md:inline-block px-3 py-2 rounded-md hover:bg-sky-600" onclick="showSection('quick-check')">Schnell-Check</a>
+                <a href="#" class="block md:inline-block px-3 py-2 rounded-md hover:bg-sky-600" onclick="showSection('benefits')">Vorteile</a>
+                <a href="#" class="block md:inline-block px-3 py-2 rounded-md hover:bg-sky-600" onclick="showSection('comparison')">Vergleich</a>
+                <a href="#" class="block md:inline-block px-3 py-2 rounded-md hover:bg-sky-600" onclick="showSection('how-it-works')">So funktioniert's</a>
+                <a href="#" class="block md:inline-block px-3 py-2 rounded-md hover:bg-sky-600" onclick="showSection('faq')">FAQ</a>
+                <a href="#" class="block md:inline-block px-3 py-2 rounded-md hover:bg-sky-600 bg-amber-500 hover:bg-amber-400 font-semibold" onclick="showSection('contact')">Beratung</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="container mx-auto px-4 md:px-6 py-8">
+
+        <!-- Section: Home (Landing Page) -->
+        <section id="home" class="section active-section text-center">
+            <div class="bg-white p-6 md:p-10 rounded-xl shadow-xl">
+                <h1 class="text-4xl md:text-5xl font-bold text-sky-700 mb-6">Ihre Rente? Sicher und steueroptimiert mit der Basisrente!</h1>
+                <p class="text-lg md:text-xl text-gray-600 mb-4">Sorgen Sie sich um Ihre finanzielle Sicherheit im Alter? Fragen Sie sich, wie Sie Steuern sparen und gleichzeitig vorsorgen können?</p>
+                <p class="text-lg md:text-xl text-gray-700 font-semibold mb-8">Entdecken Sie die Basisrente: Die clevere Altersvorsorge für Selbstständige, Freiberufler und Gutverdiener.</p>
+                <button class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-8 rounded-lg text-lg shadow-md transition duration-300" onclick="showSection('quick-check')">
+                    Passt die Basisrente zu mir? (Schnell-Check)
+                </button>
+                <img src="https://placehold.co/800x400/3B82F6/FFFFFF?text=Sichere+Altersvorsorge" alt="Symbolbild Altersvorsorge" class="mt-10 rounded-lg shadow-lg mx-auto" onerror="this.onerror=null;this.src='https://placehold.co/600x300/CCCCCC/FFFFFF?text=Bild+nicht+geladen';">
+            </div>
+        </section>
+
+        <!-- Section: Quick Check -->
+        <section id="quick-check" class="section">
+            <div class="bg-white p-6 md:p-10 rounded-xl shadow-xl max-w-2xl mx-auto">
+                <h2 class="text-3xl font-bold text-sky-700 mb-8 text-center">Passt die Basisrente zu mir?</h2>
+                <form id="quickCheckForm">
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-lg font-semibold mb-2">Sind Sie selbstständig, Freiberufler oder Angestellter mit hohem Einkommen?</label>
+                        <div>
+                            <label class="inline-flex items-center mr-6">
+                                <input type="radio" class="form-radio h-5 w-5 text-sky-600" name="incomeType" value="yes" required>
+                                <span class="ml-2 text-gray-700">Ja</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" class="form-radio h-5 w-5 text-sky-600" name="incomeType" value="no">
+                                <span class="ml-2 text-gray-700">Nein</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-lg font-semibold mb-2">Möchten Sie Ihre Steuerlast aktiv senken?</label>
+                        <div>
+                            <label class="inline-flex items-center mr-6">
+                                <input type="radio" class="form-radio h-5 w-5 text-sky-600" name="taxSave" value="yes" required>
+                                <span class="ml-2 text-gray-700">Ja</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" class="form-radio h-5 w-5 text-sky-600" name="taxSave" value="no">
+                                <span class="ml-2 text-gray-700">Nein</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-lg font-semibold mb-2">Ist Ihnen eine lebenslange, garantierte Rentenzahlung wichtig?</label>
+                        <div>
+                            <label class="inline-flex items-center mr-6">
+                                <input type="radio" class="form-radio h-5 w-5 text-sky-600" name="guaranteedPension" value="yes" required>
+                                <span class="ml-2 text-gray-700">Ja</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" class="form-radio h-5 w-5 text-sky-600" name="guaranteedPension" value="no">
+                                <span class="ml-2 text-gray-700">Nein</span>
+                            </label>
+                        </div>
+                    </div>
+                    <button type="button" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-md transition duration-300" onclick="handleQuickCheck()">Ergebnis anzeigen</button>
+                </form>
+                <div id="quickCheckResult" class="mt-8 p-6 bg-sky-50 rounded-lg border border-sky-200 hidden">
+                    <!-- Result will be displayed here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Benefits -->
+        <section id="benefits" class="section">
+            <div class="bg-white p-6 md:p-10 rounded-xl shadow-xl">
+                <h2 class="text-3xl font-bold text-sky-700 mb-8 text-center">Ihre Vorteile mit der Basisrente</h2>
+                
+                <div class="grid md:grid-cols-2 gap-8 mb-10">
+                    <!-- Contribution & Tax Saving Visualizer -->
+                    <div class="bg-sky-50 p-6 rounded-lg shadow">
+                        <h3 class="text-2xl font-semibold text-sky-600 mb-4">Beitrags- & Steuerspar-Visualisierung</h3>
+                        <p class="text-sm text-gray-600 mb-4">Sehen Sie, wie sich Ihre Beiträge und Steuervorteile über die Jahre entwickeln können.</p>
+                        
+                        <label for="annualContributionVisual" class="block text-gray-700 font-medium mb-1">Jährlicher Beitrag (€): <span id="annualContributionSliderValueDisplay" class="font-semibold">5.000</span></label>
+                        <input type="number" id="annualContributionVisual" class="w-full p-2 border border-gray-300 rounded-md mb-1 focus:ring-sky-500 focus:border-sky-500" placeholder="z.B. 5000" value="5000" max="29344">
+                        <input type="range" id="annualContributionSlider" min="0" max="29344" value="5000" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mb-3 accent-sky-600">
+
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-2 items-end"> 
+                            <div>
+                                <label for="currentAge" class="block text-gray-700 font-medium mb-1">Ihr aktuelles Alter:</label>
+                                <input type="number" id="currentAge" class="w-full p-2 border border-gray-300 rounded-md focus:ring-sky-500 focus:border-sky-500" value="30" min="18" max="65">
+                            </div>
+                            <div>
+                                <label for="retirementAge" class="block text-gray-700 font-medium mb-1">Gewünschtes Rentenalter:</label>
+                                <input type="number" id="retirementAge" class="w-full p-2 border border-gray-300 rounded-md focus:ring-sky-500 focus:border-sky-500" value="67" min="62" max="75">
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-4">Ansparzeit: <span id="calculatedSavingsYears" class="font-semibold">37</span> Jahre</p>
+                        <!-- Removed Button:
+                        <button class="bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-300 mb-4" onclick="calculateContributionVisual()">Visualisierung aktualisieren</button> 
+                        -->
+                        <div id="contributionVisualResult" class="hidden">
+                            <h4 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Ergebnisübersicht:</h4>
+                            <div class="space-y-1 text-sm text-gray-700">
+                                <div id="totalContributionText" class="flex justify-between items-center"></div>
+                                <div id="totalTaxSavingText" class="flex justify-between items-center"></div>
+                                <div id="netContributionText" class="flex justify-between items-center"></div>
+                                <div id="estimatedCapitalText"> 
+                                    <!-- Content generated by JS -->
+                                </div>
+                            </div>
+                            <div class="bar-chart-container mt-4">
+                                <div class="bar-wrapper"> 
+                                    <div id="barTotalContributionContainer" class="w-full flex flex-col-reverse">
+                                        <!-- Segments will be injected here by JS -->
+                                    </div>
+                                    <div class="bar-label">Gesamtbeitrag</div>
+                                </div>
+                                <div class="bar-wrapper"> 
+                                    <div id="barEstimatedCapital" class="bar-single bg-amber-500 w-full">0€</div>
+                                    <div class="bar-label">Beispielkapital</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-3">* Dies ist eine stark vereinfachte Beispielrechnung mit Annahmen (z.B. 30% Steuerersparnis, <strong class="font-semibold">6% p.a. Rendite</strong>) und ersetzt keine persönliche Beratung.</p>
+                    </div>
+
+                    <!-- Pension Gap Visualizer (Simplified) -->
+                    <div class="bg-sky-50 p-6 rounded-lg shadow">
+                        <h3 class="text-2xl font-semibold text-sky-600 mb-4">Rentenlücke schließen (Symbolisch)</h3>
+                        <p class="text-sm text-gray-600 mb-4">Die Basisrente hilft Ihnen, Ihre Versorgungslücke im Alter zu verringern.</p>
+                        <div class="relative pt-1">
+                            <label for="desiredPension" class="block text-gray-700 font-medium mb-1">Gewünschte Monatsrente (€):</label>
+                            <input type="number" id="desiredPension" value="2500" class="w-full p-2 border border-gray-300 rounded-md mb-3 focus:ring-sky-500 focus:border-sky-500">
+                             <label for="currentPension" class="block text-gray-700 font-medium mb-1">Erwartete gesetzl. Rente (€):</label>
+                            <input type="number" id="currentPension" value="1200" class="w-full p-2 border border-gray-300 rounded-md mb-3 focus:ring-sky-500 focus:border-sky-500">
+                            <button class="bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-300 mb-3" onclick="visualizePensionGap()">Lücke visualisieren</button>
+                            <div id="pensionGapVisualization" class="hidden">
+                                <div class="flex mb-2 items-center justify-between">
+                                    <div><span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-sky-600 bg-sky-200">Gesetzliche Rente</span></div>
+                                    <div class="text-right"><span id="gapCurrent" class="text-xs font-semibold inline-block text-sky-600"></span></div>
+                                </div>
+                                <div class="overflow-hidden h-4 mb-2 text-xs flex rounded bg-sky-200">
+                                    <div id="pensionBarCurrent" style="width:0%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-sky-500"></div>
+                                    <div id="pensionBarGap" style="width:100%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-red-400"></div>
+                                </div>
+                                <p class="text-sm text-center text-red-500 font-semibold">Ihre Rentenlücke: <span id="gapAmount"></span> €</p>
+                                <p class="text-xs text-gray-500 mt-1 text-center">Die Basisrente kann helfen, diese Lücke zu schließen.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="text-2xl font-semibold text-sky-700 mb-6 text-center">Weitere Kernvorteile</h3>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-gray-50 p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <svg class="w-12 h-12 text-sky-600 mb-3 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <h4 class="text-xl font-semibold text-gray-700 mb-2 text-center">Lebenslange Rente</h4>
+                        <p class="text-gray-600 text-sm text-center">Garantiere Zahlungen, solange Sie leben – für finanzielle Sicherheit im Alter.</p>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                         <svg class="w-12 h-12 text-sky-600 mb-3 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path></svg>
+                        <h4 class="text-xl font-semibold text-gray-700 mb-2 text-center">Flexible Beiträge</h4>
+                        <p class="text-gray-600 text-sm text-center">Passen Sie Ihre Beiträge Ihrer finanziellen Situation an (im Rahmen der steuerlichen Grenzen).</p>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <svg class="w-12 h-12 text-sky-600 mb-3 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                        <h4 class="text-xl font-semibold text-gray-700 mb-2 text-center">Insolvenz-/Hartz IV-Schutz</h4>
+                        <p class="text-gray-600 text-sm text-center">Ihr angespartes Kapital ist in der Ansparphase vor Pfändung und Zugriff durch das Jobcenter geschützt.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Comparison Calculator -->
+        <section id="comparison" class="section">
+            <div class="bg-white p-6 md:p-10 rounded-xl shadow-xl">
+                <h2 class="text-3xl font-bold text-sky-700 mb-8 text-center">Altersvorsorge-Vergleich (Vereinfacht)</h2>
+                <p class="text-lg text-gray-600 mb-6 text-center max-w-3xl mx-auto">
+                    Vergleichen Sie die Basisrente mit anderen gängigen Vorsorgeformen anhand wichtiger Merkmale. Dieser Vergleich dient einer ersten Orientierung und ersetzt keine individuelle Beratung.
+                </p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full comparison-table">
+                        <thead>
+                            <tr>
+                                <th class="w-1/4">Merkmal</th>
+                                <th class="w-1/4 text-sky-700 font-semibold">Basisrente (Rürup)</th>
+                                <th class="w-1/4">Private Rentenversicherung</th>
+                                <th class="w-1/4">ETF-Sparplan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-semibold">Steuerl. Absetzbarkeit (Ansparphase)</td>
+                                <td><strong class="text-green-600">Hoch</strong> (Beiträge als Sonderausgaben)</td>
+                                <td>Gering (nur Ertragsanteil bei bestimmten Altverträgen oder Riester)</td>
+                                <td>Nein (Besteuerung der Erträge)</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Besteuerung (Auszahlungsphase)</td>
+                                <td>Nachgelagert (gesamte Rente mit persönl. Steuersatz)</td>
+                                <td>Ertragsanteil-Besteuerung (Rente) oder hälftige Besteuerung (Kapitalauszahlung nach 12 J./62 Lj.)</td>
+                                <td>Abgeltungssteuer auf Erträge (+ Teilfreistellung)</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Flexibilität Einzahlung</td>
+                                <td>Flexibel (bis Höchstbetrag)</td>
+                                <td>Flexibel (je nach Vertrag)</td>
+                                <td>Sehr flexibel</td>
+                            </tr>
+                             <tr>
+                                <td class="font-semibold">Flexibilität Auszahlung</td>
+                                <td><strong class="text-red-600">Nur als lebenslange Rente</strong></td>
+                                <td>Rente oder Kapitalwahlrecht (oft)</td>
+                                <td>Sehr flexibel (jederzeit verfügbar)</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Kapitalwahlrecht</td>
+                                <td><strong class="text-red-600">Nein</strong></td>
+                                <td>Oft Ja</td>
+                                <td>Ja (entspricht Kapital)</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Garantien</td>
+                                <td>Hoch (Beitragsgarantie oft möglich, lebenslange Rente)</td>
+                                <td>Variabel (von hoch bei Klassik bis keine bei rein Fondsgebunden)</td>
+                                <td>Keine (Kursschwankungen)</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Renditechance</td>
+                                <td>Mittel (je nach Anlage)</td>
+                                <td>Mittel bis Hoch (je nach Anlage)</td>
+                                <td>Potenziell Hoch (abhängig vom Markt)</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Insolvenzschutz (Ansparphase)</td>
+                                <td><strong class="text-green-600">Ja</strong> (Hartz IV-sicher, pfändungsgeschützt bis Grenzen)</td>
+                                <td>Ja (Hartz IV-sicher bei Zweckbindung, pfändungsgeschützt bis Grenzen)</td>
+                                <td>Nein (Kapital ist Vermögen, aber ETF sind Sondervermögen)</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Vererbbarkeit</td>
+                                <td>Eingeschränkt (oft nur mit Zusatzvereinbarung für Hinterbliebenenrente)</td>
+                                <td>Ja (Kapital oder Rente für Hinterbliebene möglich)</td>
+                                <td>Ja (Depotwert ist vererbbar)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                 <p class="text-xs text-gray-500 mt-6 text-center">
+                    <strong>Hinweis:</strong> Die genauen Ausprägungen können je nach individuellem Vertrag und Anbieter variieren. Dieser Vergleich ist stark vereinfacht.
+                </p>
+            </div>
+        </section>
+
+
+        <!-- Section: How it Works -->
+        <section id="how-it-works" class="section">
+            <div class="bg-white p-6 md:p-10 rounded-xl shadow-xl">
+                <h2 class="text-3xl font-bold text-sky-700 mb-8 text-center">So funktioniert die Basisrente</h2>
+                <p class="text-lg text-gray-600 mb-10 text-center max-w-3xl mx-auto">Die Basisrente ist eine Form der privaten Altersvorsorge, die staatlich gefördert wird, insbesondere durch Steuervorteile in der Ansparphase. Sie richtet sich vor allem an Selbstständige und Gutverdiener.</p>
+
+                <div class="grid md:grid-cols-2 gap-8 items-start">
+                    <div class="bg-sky-50 p-6 rounded-lg shadow">
+                        <h3 class="text-2xl font-semibold text-sky-600 mb-4">1. Ansparphase</h3>
+                         <img src="https://placehold.co/600x300/93C5FD/FFFFFF?text=Ansparphase" alt="Symbolbild Ansparphase" class="mb-4 rounded-lg shadow-md w-full" onerror="this.onerror=null;this.src='https://placehold.co/600x300/CCCCCC/FFFFFF?text=Bild+nicht+geladen';">
+                        <ul class="list-disc list-inside text-gray-700 space-y-2">
+                            <li>Sie zahlen Beiträge in Ihren Vertrag ein (regelmäßig oder flexibel).</li>
+                            <li>Diese Beiträge können Sie zu einem großen Teil steuerlich geltend machen (der absetzbare Anteil steigt jährlich an).</li>
+                            <li>Ihr Kapital wächst über die Jahre, je nach gewählter Anlageform.</li>
+                            <li>Das angesparte Kapital ist zweckgebunden für die Altersvorsorge.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-green-50 p-6 rounded-lg shadow">
+                        <h3 class="text-2xl font-semibold text-green-600 mb-4">2. Auszahlungsphase</h3>
+                        <img src="https://placehold.co/600x300/A7F3D0/FFFFFF?text=Auszahlungsphase" alt="Symbolbild Auszahlungsphase" class="mb-4 rounded-lg shadow-md w-full" onerror="this.onerror=null;this.src='https://placehold.co/600x300/CCCCCC/FFFFFF?text=Bild+nicht+geladen';">
+                        <ul class="list-disc list-inside text-gray-700 space-y-2">
+                            <li>Im Alter (frühestens ab 62) erhalten Sie eine lebenslange monatliche Rente.</li>
+                            <li>Eine einmalige Kapitalauszahlung ist nicht möglich.</li>
+                            <li>Die Rente muss versteuert werden (nachgelagerte Besteuerung). Da Ihr Steuersatz im Alter oft niedriger ist, kann dies vorteilhaft sein.</li>
+                            <li>Optionen für Hinterbliebenenversorgung sind oft wählbar.</li>
+                        </ul>
+                    </div>
+                </div>
+                 <div class="mt-10 text-center">
+                    <h3 class="text-xl font-semibold text-sky-700 mb-2">Für wen ist sie besonders geeignet?</h3>
+                    <p class="text-gray-600 max-w-2xl mx-auto">Selbstständige, Freiberufler, gutverdienende Angestellte (die den Höchstbetrag der gesetzlichen Rentenversicherung ausschöpfen) und alle, die ihre Steuerlast senken und privat für das Alter vorsorgen möchten.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: FAQ -->
+        <section id="faq" class="section">
+            <div class="bg-white p-6 md:p-10 rounded-xl shadow-xl max-w-3xl mx-auto">
+                <h2 class="text-3xl font-bold text-sky-700 mb-8 text-center">Häufige Fragen (FAQ)</h2>
+                <div class="space-y-4">
+                    <div>
+                        <button class="accordion-button w-full text-left text-lg font-semibold text-gray-700 p-4 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none flex justify-between items-center">
+                            Was passiert mit meinem Geld, wenn ich vor Rentenbeginn sterbe?
+                            <svg class="w-5 h-5 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="accordion-content bg-white border border-t-0 rounded-b-lg">
+                            <div class="p-4">
+                                <p class="text-gray-600">In der Regel kann eine Hinterbliebenenversorgung (z.B. Rentenzahlung an Ehepartner oder kindergeldberechtigte Kinder) vertraglich vereinbart werden. Ohne eine solche Vereinbarung verfällt das Kapital oft zugunsten der Versichertengemeinschaft. Prüfen Sie die genauen Bedingungen Ihres Vertrags.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="accordion-button w-full text-left text-lg font-semibold text-gray-700 p-4 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none flex justify-between items-center">
+                            Kann ich meine Beiträge ändern oder aussetzen?
+                            <svg class="w-5 h-5 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="accordion-content bg-white border border-t-0 rounded-b-lg">
+                            <div class="p-4">
+                                <p class="text-gray-600">Ja, bei den meisten Verträgen sind Beitragsanpassungen und -aussetzungen (Beitragsfreistellung) möglich. Die genauen Konditionen variieren je nach Anbieter und Tarif.</p>
+                            </div>
+                        </div>
+                    </div>
+                     <div>
+                        <button class="accordion-button w-full text-left text-lg font-semibold text-gray-700 p-4 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none flex justify-between items-center">
+                            Ist die Basisrente kündbar?
+                            <svg class="w-5 h-5 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="accordion-content bg-white border border-t-0 rounded-b-lg">
+                            <div class="p-4">
+                                <p class="text-gray-600">Nein, eine Kündigung mit Auszahlung des Kapitals ist bei der Basisrente gesetzlich ausgeschlossen, da sie der Altersvorsorge dient. Eine Beitragsfreistellung ist jedoch möglich. Der Vertrag läuft dann beitragsfrei weiter und das angesparte Kapital wird später verrentet.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="accordion-button w-full text-left text-lg font-semibold text-gray-700 p-4 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none flex justify-between items-center">
+                            Was bedeutet "nicht vererbbar, nicht beleihbar, nicht kapitalisierbar"?
+                            <svg class="w-5 h-5 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="accordion-content bg-white border border-t-0 rounded-b-lg">
+                            <div class="p-4">
+                                <p class="text-gray-600">Diese Eigenschaften sind typisch für die Basisrente:</p>
+                                <ul class="list-disc list-inside mt-2 text-gray-600">
+                                    <li><strong>Nicht vererbbar (grundsätzlich):</strong> Ohne spezielle Hinterbliebenenabsicherung geht das Kapital nicht an Erben.</li>
+                                    <li><strong>Nicht beleihbar:</strong> Der Vertrag kann nicht als Sicherheit für einen Kredit dienen.</li>
+                                    <li><strong>Nicht kapitalisierbar:</strong> Eine einmalige Kapitalauszahlung bei Rentenbeginn ist ausgeschlossen; es gibt nur eine lebenslange Rente.</li>
+                                </ul>
+                                <p class="text-gray-600 mt-2">Diese Regelungen dienen dem Schutz der Altersvorsorge.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Contact / Offer -->
+        <section id="contact" class="section">
+            <div class="bg-white p-6 md:p-10 rounded-xl shadow-xl max-w-2xl mx-auto">
+                <h2 class="text-3xl font-bold text-sky-700 mb-8 text-center">Ihr persönliches Angebot & Beratung</h2>
+                <p class="text-lg text-gray-600 mb-6 text-center">Sie haben Interesse oder weitere Fragen? Fordern Sie jetzt Ihr unverbindliches Angebot an oder vereinbaren Sie einen kostenlosen Beratungstermin. Wir helfen Ihnen gerne, die optimale Lösung für Ihre Altersvorsorge zu finden.</p>
+                <form id="contactForm">
+                    <div class="mb-4">
+                        <label for="name" class="block text-gray-700 font-medium mb-1">Name:</label>
+                        <input type="text" id="name" name="name" class="w-full p-3 border border-gray-300 rounded-md focus:ring-sky-500 focus:border-sky-500" required placeholder="Max Mustermann">
+                    </div>
+                    <div class="mb-4">
+                        <label for="email" class="block text-gray-700 font-medium mb-1">E-Mail:</label>
+                        <input type="email" id="email" name="email" class="w-full p-3 border border-gray-300 rounded-md focus:ring-sky-500 focus:border-sky-500" required placeholder="max.mustermann@email.de">
+                    </div>
+                    <div class="mb-4">
+                        <label for="phone" class="block text-gray-700 font-medium mb-1">Telefon (optional):</label>
+                        <input type="tel" id="phone" name="phone" class="w-full p-3 border border-gray-300 rounded-md focus:ring-sky-500 focus:border-sky-500" placeholder="0123 456789">
+                    </div>
+                    <div class="mb-6">
+                        <label for="message" class="block text-gray-700 font-medium mb-1">Ihre Nachricht (optional):</label>
+                        <textarea id="message" name="message" rows="4" class="w-full p-3 border border-gray-300 rounded-md focus:ring-sky-500 focus:border-sky-500" placeholder="Haben Sie spezielle Fragen oder Wünsche?"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-md transition duration-300">
+                        Anfrage senden
+                    </button>
+                </form>
+                 <div class="mt-8 text-center">
+                    <img src="https://placehold.co/150x150/7DD3FC/FFFFFF?text=Ihr+Berater" alt="Ihr Berater" class="w-32 h-32 rounded-full mx-auto mb-4 shadow-lg" onerror="this.onerror=null;this.src='https://placehold.co/150x150/CCCCCC/FFFFFF?text=Bild';">
+                    <p class="text-gray-700 font-semibold">Max Mustermann</p>
+                    <p class="text-gray-600 text-sm">Zertifizierter Altersvorsorgeberater</p>
+                    <p class="text-xs text-gray-500 mt-2">Alle Berechnungen und Informationen auf dieser Webseite dienen der Erstinformation und ersetzen keine persönliche, bedarfsgerechte Beratung.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-300 py-8 mt-12">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; <span id="currentYear"></span> Ihre Firma. Alle Rechte vorbehalten.</p>
+            <p class="text-sm mt-1">
+                <a href="#" class="hover:text-sky-400">Impressum</a> | 
+                <a href="#" class="hover:text-sky-400">Datenschutz</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Message Box Container -->
+    <div id="messageBoxContainer"></div>
+
+
+<script>
+    // --- Navigation ---
+    const sections = document.querySelectorAll('.section');
+    const navLinksContainer = document.getElementById('navLinks');
+    const navLinks = navLinksContainer.querySelectorAll('a'); 
+    const mobileMenuButton = document.getElementById('mobileMenuButton');
+
+    function showSection(sectionId) {
+        sections.forEach(section => {
+            if (section.id === sectionId) {
+                section.classList.add('active-section');
+            } else {
+                section.classList.remove('active-section');
+            }
+        });
+        // Update active link styling
+        navLinks.forEach(link => {
+            const isBeratungLink = link.getAttribute('onclick')?.includes("showSection('contact')");
+            if (link.getAttribute('onclick')?.includes(`showSection('${sectionId}')`)) {
+                if (isBeratungLink) {
+                    link.classList.add('bg-amber-600'); // Darker amber for active Beratung
+                    link.classList.remove('bg-amber-500', 'hover:bg-amber-400');
+                } else {
+                    link.classList.add('bg-sky-600', 'md:bg-sky-800');
+                    link.classList.remove('hover:bg-sky-600');
+                }
+            } else {
+                 if (isBeratungLink) {
+                    link.classList.add('bg-amber-500', 'hover:bg-amber-400');
+                    link.classList.remove('bg-amber-600', 'bg-sky-600', 'md:bg-sky-800', 'hover:bg-sky-600');
+                } else {
+                    link.classList.remove('bg-sky-600', 'md:bg-sky-800', 'bg-amber-600');
+                    link.classList.add('hover:bg-sky-600');
+                }
+            }
+        });
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        if (navLinksContainer && !navLinksContainer.classList.contains('hidden')) {
+            navLinksContainer.classList.add('hidden');
+        }
+    }
+
+    if (mobileMenuButton) { 
+        mobileMenuButton.addEventListener('click', () => {
+            if (navLinksContainer) { 
+                navLinksContainer.classList.toggle('hidden');
+            }
+        });
+    }
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth < 768 && navLinksContainer) { 
+                 navLinksContainer.classList.add('hidden');
+            }
+        });
+    });
+
+
+    // --- Quick Check Logic ---
+    function handleQuickCheck() {
+        const form = document.getElementById('quickCheckForm');
+        const resultDiv = document.getElementById('quickCheckResult');
+        if (!form || !resultDiv) return; 
+
+        const incomeTypeElement = form.elements.incomeType;
+        const taxSaveElement = form.elements.taxSave;
+        const guaranteedPensionElement = form.elements.guaranteedPension;
+
+        if (!incomeTypeElement || !taxSaveElement || !guaranteedPensionElement ) {
+             showTemporaryMessage("Bitte beantworten Sie alle Fragen im Schnell-Check.", "error");
+             return;
+        }
+        
+        const incomeType = incomeTypeElement.value;
+        const taxSave = taxSaveElement.value;
+        const guaranteedPension = guaranteedPensionElement.value;
+
+        if (!incomeType || !taxSave || !guaranteedPension) {
+            showTemporaryMessage("Bitte beantworten Sie alle Fragen im Schnell-Check.", "error");
+            return;
+        }
+
+        let message = "";
+        let yesCount = 0;
+        if (incomeType === 'yes') yesCount++;
+        if (taxSave === 'yes') yesCount++;
+        if (guaranteedPension === 'yes') yesCount++;
+
+        if (yesCount >= 2) {
+            message = `<h3 class="text-xl font-semibold text-green-700 mb-2">Sehr gut! Die Basisrente könnte ideal für Sie sein.</h3>
+                       <p class="text-gray-700">Sie scheinen mehrere wichtige Kriterien zu erfüllen, die für die Basisrente sprechen. Entdecken Sie jetzt Ihre individuellen Vorteile oder lassen Sie sich direkt beraten.</p>
+                       <button class="mt-4 bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg" onclick="showSection('benefits')">Vorteile entdecken</button>`;
+        } else if (yesCount === 1) {
+            message = `<h3 class="text-xl font-semibold text-sky-700 mb-2">Die Basisrente könnte für Sie interessant sein.</h3>
+                       <p class="text-gray-700">Auch wenn nicht alle Punkte zutreffen, bietet die Basisrente oft auch in Ihrer Situation Vorteile, besonders wenn Ihnen ${guaranteedPension === 'yes' ? 'eine garantierte Rente' : (taxSave === 'yes' ? 'Steuerersparnisse' : 'eine solide Altersvorsorge')} wichtig ist. Lassen Sie uns gemeinsam prüfen, ob sie optimal passt.</p>
+                       <button class="mt-4 bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg" onclick="showSection('contact')">Zur Beratung</button>`;
+        } else {
+            message = `<h3 class="text-xl font-semibold text-amber-700 mb-2">Möglicherweise ist ein anderes Vorsorgemodell passender.</h3>
+                       <p class="text-gray-700">Die Basisrente scheint auf den ersten Blick nicht optimal zu Ihren aktuellen Angaben zu passen. Gerne beraten wir Sie zu Alternativen, die besser auf Ihre Bedürfnisse zugeschnitten sind.</p>
+                       <button class="mt-4 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 px-4 rounded-lg" onclick="showSection('contact')">Allgemeine Beratung</button>`;
+        }
+
+        resultDiv.innerHTML = message;
+        resultDiv.classList.remove('hidden');
+    }
+
+    // --- Benefits Page Logic (Contribution & Tax Saving Visualizer) ---
+    const annualContributionInput = document.getElementById('annualContributionVisual');
+    const annualContributionSlider = document.getElementById('annualContributionSlider');
+    const annualContributionSliderValueDisplay = document.getElementById('annualContributionSliderValueDisplay');
+
+    const currentAgeInput = document.getElementById('currentAge');
+    const retirementAgeInput = document.getElementById('retirementAge');
+    const calculatedSavingsYearsDisplay = document.getElementById('calculatedSavingsYears');
+
+    function syncContributionInputs(sourceElement) {
+        if (!annualContributionInput || !annualContributionSlider || !annualContributionSliderValueDisplay) return;
+        
+        let value = 0;
+        if (sourceElement.id === 'annualContributionVisual') {
+            value = parseInt(annualContributionInput.value, 10);
+            if (isNaN(value) || value < 0) value = 0;
+            // Max attribute on input field should ideally handle this, but JS clamp for safety
+            if (value > 29344) {
+                value = 29344; 
+                annualContributionInput.value = value; // Correct input field if over max
+            }
+            annualContributionSlider.value = value;
+        } else if (sourceElement.id === 'annualContributionSlider') {
+            value = parseInt(annualContributionSlider.value, 10);
+            annualContributionInput.value = value;
+        }
+        annualContributionSliderValueDisplay.textContent = Math.round(value).toLocaleString('de-DE');
+        calculateContributionVisual();
+    }
+
+    if(annualContributionInput) annualContributionInput.addEventListener('input', () => syncContributionInputs(annualContributionInput));
+    if(annualContributionSlider) annualContributionSlider.addEventListener('input', () => syncContributionInputs(annualContributionSlider));
+
+
+    function updateCalculatedYears() {
+        if (!currentAgeInput || !retirementAgeInput || !calculatedSavingsYearsDisplay) return;
+        const currentAge = parseInt(currentAgeInput.value);
+        const retirementAge = parseInt(retirementAgeInput.value);
+        if (!isNaN(currentAge) && !isNaN(retirementAge) && retirementAge > currentAge) {
+            calculatedSavingsYearsDisplay.textContent = (retirementAge - currentAge);
+        } else {
+            calculatedSavingsYearsDisplay.textContent = "N/A";
+        }
+         calculateContributionVisual(); // Update visualization when age changes
+    }
+
+    if (currentAgeInput) currentAgeInput.addEventListener('input', updateCalculatedYears);
+    if (retirementAgeInput) retirementAgeInput.addEventListener('input', updateCalculatedYears);
+    
+    function calculateContributionVisual() {
+        const contributionInputEl = document.getElementById('annualContributionVisual'); 
+        const currentAgeEl = document.getElementById('currentAge');
+        const retirementAgeEl = document.getElementById('retirementAge');
+        const resultDiv = document.getElementById('contributionVisualResult');
+
+        const totalContributionTextEl = document.getElementById('totalContributionText');
+        const totalTaxSavingTextEl = document.getElementById('totalTaxSavingText');
+        const netContributionTextEl = document.getElementById('netContributionText');
+        const estimatedCapitalTextEl = document.getElementById('estimatedCapitalText');
+        const minVisibleHeight = 2; 
+
+
+        if (!contributionInputEl || !currentAgeEl || !retirementAgeEl || !resultDiv || !calculatedSavingsYearsDisplay ||
+            !totalContributionTextEl || !totalTaxSavingTextEl || !netContributionTextEl || !estimatedCapitalTextEl) {
+            return;
+        }
+
+        const annualContribution = parseFloat(contributionInputEl.value);
+        const maxDeductibleSingle = 29344; 
+
+        if (parseFloat(contributionInputEl.value) > maxDeductibleSingle && parseFloat(contributionInputEl.value) !== 29344) { // Check if it's not already the max value from slider
+             if(annualContributionSlider.value !== contributionInputEl.value){ // only show if input field was manually changed above max
+                showTemporaryMessage(`Hinweis: Ihr Beitrag übersteigt den Maximalbetrag von ${maxDeductibleSingle.toLocaleString('de-DE')} €. Die Berechnung erfolgt mit dem Maximalbetrag.`, 'warning', 7000);
+             }
+        }
+
+
+        const currentAge = parseInt(currentAgeEl.value);
+        const retirementAge = parseInt(retirementAgeEl.value);
+        
+        if (isNaN(annualContribution) || annualContribution < 0) { 
+             showTemporaryMessage("Bitte geben Sie einen gültigen Jahresbeitrag ein (0 oder höher).", "error");
+             resultDiv.classList.add('hidden');
+             return;
+        }
+        if (isNaN(currentAge) || currentAge < 18 || isNaN(retirementAge) || retirementAge <= currentAge || retirementAge > 75) {
+            showTemporaryMessage("Bitte geben Sie ein gültiges aktuelles Alter (mind. 18) und ein Rentenalter (größer als aktuelles Alter, max. 75) ein.", "error");
+            resultDiv.classList.add('hidden');
+            calculatedSavingsYearsDisplay.textContent = "N/A";
+            return;
+        }
+        
+        const years = retirementAge - currentAge;
+        calculatedSavingsYearsDisplay.textContent = years;
+
+        const actualAnnualContributionForCalc = Math.min(annualContribution, maxDeductibleSingle); 
+        const totalContributionCalc = actualAnnualContributionForCalc * years; 
+        
+        const taxSavingPercentage = 0.30;
+        
+        let annualDeductible = Math.min(annualContribution, maxDeductibleSingle); 
+        const annualTaxSaving = annualDeductible * taxSavingPercentage;
+        const totalTaxSaving = annualTaxSaving * years;
+
+        const netContribution = (annualContribution * years) - totalTaxSaving; 
+
+        const annualNetEffectiveContribution = actualAnnualContributionForCalc - annualTaxSaving; 
+        const interestRate = 0.06; 
+        let estimatedCapital = 0;
+        if (interestRate > 0 && years > 0) {
+             estimatedCapital = annualNetEffectiveContribution * ( (Math.pow(1 + interestRate, years) - 1) / interestRate );
+        } else if (years > 0) { 
+             estimatedCapital = annualNetEffectiveContribution * years;
+        }
+
+
+        totalContributionTextEl.innerHTML = `<span class="text-left">Gesamteinzahlung (${years} Jahre):</span><span class="font-semibold text-right">${Math.round(annualContribution * years).toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 0})}&nbsp;€</span>`;
+        totalTaxSavingTextEl.innerHTML = `<span class="text-left">Geschätzte Gesamt-Steuerersparnis:</span><span class="font-semibold text-right">${Math.round(totalTaxSaving).toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 0})}&nbsp;€</span>`;
+        netContributionTextEl.innerHTML = `<span class="text-left">Effektiver Nettobeitrag:</span><span class="font-semibold text-right">${Math.round(netContribution).toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 0})}&nbsp;€</span>`;
+        
+        estimatedCapitalTextEl.innerHTML = `
+            <div class="flex justify-between items-center">
+                <span class="text-left">Beispielhaftes Endkapital:</span>
+                <span class="font-semibold text-right">${Math.round(estimatedCapital).toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 0})}&nbsp;€</span>
+            </div>
+            <div class="text-left text-xs text-gray-500 mt-0.5">(bei ${interestRate*100}% p.a. Rendite)</div>`;
+
+        const barTotalContainer = document.getElementById('barTotalContributionContainer');
+        const barCapital = document.getElementById('barEstimatedCapital');
+        
+        const maxBarElementHeight = 170; 
+
+        const maxValue = Math.max(totalContributionCalc, estimatedCapital, 1); 
+
+        // Clear previous segments
+        barTotalContainer.innerHTML = '';
+
+        const netContributionForBar = actualAnnualContributionForCalc * years - totalTaxSaving; 
+        const taxSavingForBar = totalTaxSaving; 
+
+        const netContributionHeight = (netContributionForBar / maxValue) * maxBarElementHeight;
+        const taxSavingHeight = (taxSavingForBar / maxValue) * maxBarElementHeight;
+        
+        const minVisibleSegmentHeight = 1; 
+
+        const netContributionSegment = document.createElement('div');
+        netContributionSegment.className = 'bar-segment bg-sky-500'; 
+        netContributionSegment.style.height = netContributionForBar > 0 ? `${Math.max(minVisibleSegmentHeight, Math.min(netContributionHeight, maxBarElementHeight))}px` : '0px';
+        if (netContributionHeight >= 15) netContributionSegment.textContent = `${Math.round(netContributionForBar/1000).toLocaleString('de-DE')} T€`;
+        
+        const taxSavingSegment = document.createElement('div');
+        taxSavingSegment.className = 'bar-segment bg-green-500'; 
+        taxSavingSegment.style.height = taxSavingForBar > 0 ? `${Math.max(minVisibleSegmentHeight, Math.min(taxSavingHeight, maxBarElementHeight - parseFloat(netContributionSegment.style.height)))}px` : '0px'; 
+        if (taxSavingHeight >= 15) taxSavingSegment.textContent = `${Math.round(taxSavingForBar/1000).toLocaleString('de-DE')} T€`;
+
+        barTotalContainer.appendChild(netContributionSegment);
+        barTotalContainer.appendChild(taxSavingSegment);
+        
+        if (taxSavingForBar > 0 && netContributionForBar > 0) { 
+            netContributionSegment.style.borderRadius = '0 0 0.25rem 0.25rem';
+            taxSavingSegment.style.borderRadius = '0.25rem 0.25rem 0 0';
+        } else if (netContributionForBar > 0) { 
+            netContributionSegment.style.borderRadius = '0.25rem 0.25rem 0 0';
+        } else if (taxSavingForBar > 0) { 
+            taxSavingSegment.style.borderRadius = '0.25rem 0.25rem 0 0';
+        }
+
+        let estimatedCapitalBarHeight = (estimatedCapital / maxValue) * maxBarElementHeight;
+        barCapital.style.height = estimatedCapital > 0 ? `${Math.max(minVisibleSegmentHeight, Math.min(estimatedCapitalBarHeight, maxBarElementHeight))}px` : '0px';
+        barCapital.textContent = `${Math.round(estimatedCapital/1000).toLocaleString('de-DE')} T€`;
+        
+        resultDiv.classList.remove('hidden');
+    }
+
+
+    function visualizePensionGap() {
+        const desiredPensionEl = document.getElementById('desiredPension');
+        const currentPensionEl = document.getElementById('currentPension');
+        const visualizationDiv = document.getElementById('pensionGapVisualization');
+        const pensionBarCurrent = document.getElementById('pensionBarCurrent');
+        const pensionBarGap = document.getElementById('pensionBarGap');
+        const gapCurrentEl = document.getElementById('gapCurrent');
+        const gapAmountEl = document.getElementById('gapAmount');
+
+        if (!desiredPensionEl || !currentPensionEl || !visualizationDiv || !pensionBarCurrent || !pensionBarGap || !gapCurrentEl || !gapAmountEl) return;
+
+        const desired = parseFloat(desiredPensionEl.value) || 0;
+        const current = parseFloat(currentPensionEl.value) || 0;
+
+        if (desired <= 0 || current < 0) {
+            showTemporaryMessage("Bitte gültige Rentenbeträge eingeben.", "error");
+            visualizationDiv.classList.add('hidden');
+            return;
+        }
+        
+        const gapTextParagraph = gapAmountEl.parentNode; 
+        const originalGapText = "Ihre Rentenlücke: ";
+        
+        gapTextParagraph.innerHTML = `${originalGapText}<span id="gapAmount">${Math.round(desired - current).toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 0})}&nbsp;€</span>`; 
+        const newGapAmountEl = document.getElementById('gapAmount'); 
+
+
+        if (current >= desired) {
+            pensionBarCurrent.style.width = '100%';
+            pensionBarGap.style.width = '0%';
+            gapTextParagraph.classList.remove('text-red-500');
+            gapTextParagraph.classList.add('text-green-500');
+            gapTextParagraph.innerHTML = `Keine Rentenlücke! Herzlichen Glückwunsch!`;
+        } else {
+            const currentPercentage = (current / desired) * 100;
+            const gapPercentage = 100 - currentPercentage;
+            pensionBarCurrent.style.width = `${Math.max(0, currentPercentage)}%`; 
+            pensionBarGap.style.width = `${Math.min(100, gapPercentage)}%`; 
+            if(newGapAmountEl) newGapAmountEl.textContent = Math.round(desired - current).toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 0}) + "\u00A0€"; 
+            gapTextParagraph.classList.add('text-red-500');
+            gapTextParagraph.classList.remove('text-green-500');
+        }
+        gapCurrentEl.textContent = `${Math.round(current).toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 0})}\u00A0€`;
+        visualizationDiv.classList.remove('hidden');
+    }
+
+
+    // --- FAQ Accordion ---
+    const accordionButtons = document.querySelectorAll('.accordion-button');
+    accordionButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const currentlyActiveButton = document.querySelector('.accordion-button.active');
+            
+            if (currentlyActiveButton && currentlyActiveButton === button) {
+                button.classList.remove('active');
+                button.querySelector('svg').classList.remove('rotate-180');
+            } else {
+                if (currentlyActiveButton) {
+                    currentlyActiveButton.classList.remove('active');
+                    currentlyActiveButton.querySelector('svg').classList.remove('rotate-180');
+                }
+                button.classList.add('active');
+                button.querySelector('svg').classList.add('rotate-180');
+            }
+        });
+    });
+
+    // --- Contact Form ---
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) { 
+        contactForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const nameEl = document.getElementById('name');
+            if (!nameEl) return;
+            const name = nameEl.value;
+            showTemporaryMessage(`Vielen Dank, ${name}! Ihre Anfrage wurde (simuliert) gesendet. Wir melden uns bald!`, 'success');
+            contactForm.reset();
+        });
+    }
+    
+    // --- Temporary Message Function ---
+    function showTemporaryMessage(message, type = 'info', duration = 5000) {
+        const container = document.getElementById('messageBoxContainer');
+        if (!container) return; 
+
+        const msgBox = document.createElement('div');
+        msgBox.className = `message-box ${type}`;
+        msgBox.textContent = message;
+        container.appendChild(msgBox);
+
+        setTimeout(() => {
+            msgBox.classList.add('visible');
+        }, 10); 
+
+        setTimeout(() => {
+            msgBox.classList.remove('visible');
+            setTimeout(() => {
+                if (container.contains(msgBox)) { 
+                    container.removeChild(msgBox);
+                }
+            }, 500); 
+        }, duration);
+    }
+
+    // --- Footer Year ---
+    const currentYearEl = document.getElementById('currentYear');
+    if (currentYearEl) { 
+       currentYearEl.textContent = new Date().getFullYear();
+    }
+    
+    // --- Initialize ---
+    document.addEventListener('DOMContentLoaded', () => {
+        showSection('home');
+        updateCalculatedYears(); // Initialize calculated years display
+        syncContributionInputs(annualContributionInput); // Initial sync for slider display
+        if (document.getElementById('pensionGapVisualization')) {
+            visualizePensionGap(); 
+        }
+        // Call calculateContributionVisual once on load to ensure it's ready
+        if (document.getElementById('contributionVisualResult')) {
+             calculateContributionVisual(); 
+        }
+    });
+
+</script>
+
+</body>
+</html>
